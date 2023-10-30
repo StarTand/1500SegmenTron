@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>1500SegmenTron</title>
+    <link rel="stylesheet" href="./new_liner.css">
+    <!-- <link rel="icon" href="./favicon.ico" type="image/x-icon"> -->
+  </head>
+  <body>
+    <main>
+        <h1>1500SegmenTron.</h1> 
+        1500文字あたりで文章を分割します。
+        DeepLで長文を翻訳したいときに使用する(分割文字は\n\n)
+    </main>
+    
+    <div id="ta_input_word_count">test</div>
+    <textarea id="ta_input" name="w3review" rows="12" cols="50"  onkeyup="AdjustSentence()"></textarea>
+
+    <br><br><br>
+    
+    <!-- <textarea id="TA_Output" name="w3review" rows="12" cols="50">
+
+    </textarea> -->
+    <div>output</div>
+    <div id="area_of_output_TA"></div>
+
+	  <!-- <script src="index.js"></script> -->
+    <script>
+      function AdjustSentence() {
+        // input.
+        const ta_input_word_count = document.getElementById("ta_input_word_count");
+        const ta_input = document.getElementById("ta_input");
+        const input_text = ta_input.value;
+
+        ta_input_word_count.textContent = "約"+input_text.length + "文字";
+
+        remove_children();
+
+        // process.
+        let sentence_list = split_sentence(input_text);
+        window.sentence_list = sentence_list; // for debug
+        // 文章の気になる部分を削除する.
+        sentence_list = AdjustSentenceList(sentence_list);
+
+        // output.
+        append_textarea(sentence_list);
+
+      }
+
+      // .
+      function remove_children() {
+        // id属性で要素を取得
+        let area_of_output_TA = document.getElementById('area_of_output_TA');
+        // 子要素を削除する.
+        while( area_of_output_TA.firstChild ){
+          area_of_output_TA.removeChild( area_of_output_TA.firstChild );
+        }
+      }
+
+      // 文章を分割する
+      function split_sentence(input_text) {
+        let sentence_list = [];
+        const search_string = "\n\n"
+
+        while (input_text.length >= 1500) {
+          let split_position = 1500;
+
+          // 前文を切り出し.
+          let split_sentence = input_text.substr(0, split_position);
+
+          const search_string_position = split_sentence.lastIndexOf(search_string)
+          if (search_string_position >= 0) {
+            // 前文を再編集.
+            let split_sentence = input_text.substr(0, search_string_position);
+
+            // 後文を切り出し
+            input_text = input_text.substr(search_string_position, input_text.length)
+
+            // 前文を配列に入れる.
+            sentence_list.push(split_sentence);
+
+          } else {
+            break;
+          }
+        }
+        sentence_list.push(input_text);
+
+        return sentence_list;
+      }
+
+      // 文章の気になる部分を編集する.
+      function AdjustSentenceList(sentence_list) {
+        for (let i = 0; i < sentence_list.length; i++) {
+          // 最前列に改行があれば消す.
+          if (sentence_list[i].substr(0, 2) == "\n\n") {
+            sentence_list[i] = sentence_list[i].slice(2)
+          }
+          if (sentence_list[i].substr(0, 1) == "\n") {
+            sentence_list[i] = sentence_list[i].slice(1)
+          }
+        }
+        return sentence_list;
+      }
+
+      // textareaを生成
+      function append_textarea(sentence_list) {
+        // init.
+        if (sentence_list.length <= 0) {
+          return;
+        }
+
+        // id属性で要素を取得
+        let textbox_element = document.getElementById('area_of_output_TA');
+
+        for (var i = 0; i < sentence_list.length; i++) {
+          // 新しいHTML要素を作成
+          let new_element = document.createElement('textarea');
+          new_element.textContent = sentence_list[i];
+
+          // 指定した要素の中の末尾に挿入
+          textbox_element.appendChild(new_element);
+          console.log(i);
+        }
+        console.log(sentence_list.length);
+
+
+      }
+
+    </script>
+  </body>
+</html>
